@@ -1,0 +1,11 @@
+# Core matrix mathematics and arrays
+numpy
+
+# Advanced linear algebra solvers (used for Method of Moments)
+scipy
+
+# 2D/3D plotting for fringing curves and force distributions
+matplotlib
+
+# Unit testing framework
+pytest

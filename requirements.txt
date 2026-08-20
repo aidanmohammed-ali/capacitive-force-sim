@@ -9,3 +9,6 @@ matplotlib
 
 # Unit testing framework
 pytest
+
+# Interactive GUI for Simulation
+pygame

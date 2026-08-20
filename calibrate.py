@@ -27,7 +27,7 @@ def generate_calibration_file(filename: str = "constants.json"):
     
     # Run the fringing extraction (N=10 for high accuracy)
     print("\n--- Step 1: Self-Capacitance Fringing ---")
-    alpha, beta, gamma = FF.extract_fringing_constant(N=10, F_max=5.0, steps=50)
+    alpha, beta, gamma = FF.extract_fringing_constants(N=10, F_max=5.0, steps=50)
     
     # Run the mutual crosstalk extraction (N=10 high for accuracy)
     print("\n--- Step 2: Mutual Capacitance Crosstalk ---")

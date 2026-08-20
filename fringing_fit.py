@@ -17,7 +17,7 @@ import config as CF
 import analytical as AN
 import mom
 
-def extract_fringing_constant(N: int = 10, F_max: float = 5.0, steps: int = 50):
+def extract_fringing_constants(N: int = 10, F_max: float = 5.0, steps: int = 50):
     """
     @brief Sweeps force to extract the quadratic fringing coefficients.
     @param N The number of grid elements per side (N x N grid) for the MoM solver.

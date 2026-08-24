@@ -26,13 +26,15 @@ def test_config_loading():
     assert config.A0 == expected_A0, f"Area A0 should be {expected_A0}, got {config.A0}"
     
     # Verify the baseline capacitance C0
-    expected_C0 = (config.EPSILON_0 * config.eps_r * expected_A0) / config.d0
-    assert config.C0 == expected_C0, f"Baseline C0 should {expected_C0}, got {config.C0}"
+    expected_C_flex = (config.EPSILON_0 * config.eps_r_flex * expected_A0) / config.d_flex
+    expected_C_air = (config.EPSILON_0 * 1.0 * expected_A0) / config.d_air_0
+    expected_C0 = 1.0 / ((2.0 / expected_C_flex) + (1.0 / expected_C_air))
+    assert config.C0 == pytest.approx(expected_C0), f"Baseline C0 should {expected_C0}, got {config.C0}"
     
     # Check for physical realities
     assert config.C0 > 0, "Capacitance must be strictly positive."
     assert config.nu == 0, "Poisson's ratio must be 0 for rigid flex PCB traces."
-    assert config.eps_r > 0.99, "Relative permittivity for air should be ~1.0"
+    assert config.eps_r_flex > 0.99, "Relative permittivity for flexible PCB should be greater than 1.0"
 
 def test_missing_file():
     """

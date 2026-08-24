@@ -20,11 +20,17 @@ def calculate_analytical_capacitance(force: float) -> float:
     """
     conf = CF.load_config("config.ini")
     
-    # Calculate the change in capacitance based on the physical model
-    expansion_factor = 1 + (2 * conf.nu)
-    mechanical_strain = force / (conf.A0 * conf.E)
+    # Mechanical Deflection
+    delta_d = force / (conf.A0 * conf.E)
     
-    # Final theoretical capacitance
-    C_f = conf.C0 * (1 + (expansion_factor * mechanical_strain))
+    # Hard Limit
+    if delta_d >= conf.d_air_0:
+        delta_d = conf.d_air_0 * 0.999
     
-    return C_f
+    current_air_gap = conf.d_air_0 - delta_d
+    
+    # Electrical Series Model
+    C_air = (conf.EPSILON_0 * 1.0 * conf.A0) / current_air_gap
+    C_total = 1.0 / ((2.0 / conf.C_flex) + (1.0 / C_air))
+    
+    return C_total

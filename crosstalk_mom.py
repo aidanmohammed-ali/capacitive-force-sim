@@ -26,18 +26,17 @@ def calculate_crosstalk_capacitance(N: int = 4, force: float = 0.0, voltage: flo
     conf = CF.load_config("config.ini")
     
     # Calculate the compressed gap distance d(F)
-    strain = force / (conf.A0 * conf.E)
-    d = conf.d0 * (1 - strain)
-    
-    if d <= (conf.d0 * 0.1):
-        d = (conf.d0 * 0.1)
+    delta_d = force / (conf.A0 * conf.E)
+    if delta_d >= conf.d_air_0:
+        delta_d = conf.d_air_0 * 0.999
+    d = conf.d_air_0 - delta_d
     
     # Geometry and Meshing
     patch_L = conf.L0 / N
     patches_per_taxel = N * N
     total_patches = 9 * patches_per_taxel
     pitch = conf.L0 + conf.gap
-    eps = conf.EPSILON_0 * conf.eps_r
+    eps = conf.EPSILON_0 * 1.0006
     
     # Arrays for the linear system
     coords = np.zeros((total_patches, 2))

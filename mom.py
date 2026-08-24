@@ -26,20 +26,18 @@ def calculate_mom_capacitance(N: int = 10, force: float = 0.0, voltage: float = 
     conf = CF.load_config("config.ini")
     
     # Calculate the compressed gap distance d(F)
-    strain = force / (conf.A0 * conf.E)
-    d = conf.d0 * (1 - strain)
-    
-    # Prevent mathematical singularity by limiting max compression to 90% of original thickness
-    if d <= (conf.d0 * 0.1):
-        d = (conf.d0 * 0.1)
+    delta_d = force / (conf.A0 * conf.E)
+    if delta_d >= conf.d_air_0:
+        delta_d = conf.d_air_0 * 0.999
+    d = conf.d_air_0 - delta_d
             
     # Discretisation geometry
     num_patches = N * N
     patch_L = conf.L0 / N
     patch_A = patch_L ** 2
     
-    # Permittivity
-    eps = conf.EPSILON_0 * conf.eps_r
+    # Permittivity of the air gap
+    eps = conf.EPSILON_0 * 1.0006
     
     # Initialise the P-matrix
     P = np.zeros((num_patches, num_patches))

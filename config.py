@@ -21,16 +21,24 @@ class SensorConfig:
     
     # Geometry
     L0: float
-    d0: float
+    d_air_0: float
+    d_flex: float
     gap: float
+    
+    # Trace Routing & Hardware Limits
+    tail_w: float
+    tail_L: float
+    tail_h: float
+    cdc_limit: float
     
     # Material
     E: float
     nu: float
-    eps_r: float
+    eps_r_flex: float
     
     # Derived Properties
     A0: float
+    C_flex: float
     C0: float
 
 def load_config(ini_file: str = "config.ini") -> SensorConfig:
@@ -51,26 +59,43 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     
     # Parse Geometry
     L0 = parser.getfloat('Geometry', 'L0')
-    d0 = parser.getfloat('Geometry', 'd0')
+    d_air_0 = parser.getfloat('Geometry', 'd_air_0')
+    d_flex = parser.getfloat('Geometry', 'd_flex')
     gap = parser.getfloat('Geometry', 'gap')
+    
+    # Parse Trace Routing & Hardware Limits
+    tail_w = parser.getfloat('Hardware', 'tail_w')
+    tail_L = parser.getfloat('Hardware', 'tail_L')
+    tail_h = parser.getfloat('Hardware', 'tail_h')
+    cdc_limit = parser.getfloat('Hardware', 'cdc_limit')
     
     # Parse Material
     E = parser.getfloat('Material', 'E')
     nu = parser.getfloat('Material', 'nu')
-    eps_r = parser.getfloat('Material', 'eps_r')
+    eps_r_flex = parser.getfloat('Material', 'eps_r_flex')
     
     # Calculate Derived Properties
     A0 = L0 ** 2
-    C0 = (eps_0 * eps_r * A0) / d0
+    
+    C_flex = (eps_0 * eps_r_flex * A0) / d_flex
+    
+    C_air_initial = (eps_0 * 1.0006 * A0) / d_air_0
+    C0 = 1.0 / ((2.0 / C_flex) + (1.0 / C_air_initial))
     
     return SensorConfig(
         EPSILON_0=eps_0,
         L0=L0,
-        d0=d0,
+        d_air_0=d_air_0,
+        d_flex=d_flex,
         gap=gap,
+        tail_w=tail_w,
+        tail_L=tail_L,
+        tail_h=tail_h,
+        cdc_limit=cdc_limit,
         E=E,
         nu=nu,
-        eps_r=eps_r,
+        eps_r_flex=eps_r_flex,
         A0=A0,
+        C_flex=C_flex,
         C0=C0
     )

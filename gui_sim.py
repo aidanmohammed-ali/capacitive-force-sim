@@ -24,9 +24,9 @@ HEIGHT = ROWS * CELL_SIZE
 
 # Max force (N) to cap the input at, and approximate max delta Farads for the color scale
 MAX_FORCE = 5.0
-MAX_DELTA_C = 1.6e-17
-MIN_RAW_C = 2.4e-13
-MAX_RAW_C = 2.7e-13
+MAX_DELTA_C = 5.0e-17
+MIN_RAW_C = 1.5e-13
+MAX_RAW_C = 3.0e-13
 
 def run_gui():
     """
@@ -93,27 +93,43 @@ def run_gui():
         
         for row in range(ROWS):
             for col in range(COLS):
+                is_saturated = False
+                
                 if show_delta:
                     val = delta_matrix[row, col]
-                    intensity = int(min(max(val / MAX_DELTA_C, 0), 1) * 255)
-                    display_val = val * 1e18
-                    threshold = 0.1
+                    if np.isnan(val):
+                        is_saturated = True
+                    else:
+                        intensity = int(min(max(val / MAX_DELTA_C, 0), 1) * 255)
+                        display_val = val * 1e18
+                        threshold = 0.1
                 else:
                     val = active_matrix[row, col]
-                    norm = (val - MIN_RAW_C) / (MAX_RAW_C - MIN_RAW_C)
-                    intensity = int(min(max(norm, 0), 1) * 255)
-                    display_val = val * 1e15
-                    threshold = 0.0
+                    if np.isnan(val):
+                        is_saturated = True
+                    else:
+                        norm = (val - MIN_RAW_C) / (MAX_RAW_C - MIN_RAW_C)
+                        intensity = int(min(max(norm, 0), 1) * 255)
+                        display_val = val * 1e15
+                        threshold = 0.0
                 
-                color = (intensity, 0, 255 - intensity)
+                # Check hardware saturation
+                if is_saturated:
+                    color = (255, 0, 0)
+                    text_surface = font.render("SAT", True, (255, 255, 255))
+                    draw_text = True
+                else:                
+                    color = (intensity, 0, 255 - intensity)
+                    text_surface = font.render(f"{display_val:.1f}", True, (255, 255, 255))
+                    draw_text = (display_val > threshold) or not show_delta
+                
                 rect = (col * cell_w, row * cell_h, cell_w, cell_h)
                 
                 # Draw the coloured taxel and a subtle grid outline
                 pygame.draw.rect(screen, color, rect)
                 pygame.draw.rect(screen, (40, 40, 40), rect, 1)
                 
-                if display_val > threshold or not show_delta:
-                    text_surface = font.render(f"{display_val:.3f}", True, (255, 255, 255))
+                if draw_text:
                     text_rect = text_surface.get_rect(center=(col * cell_w + cell_w // 2, row * cell_h + cell_h // 2))
                     screen.blit(text_surface, text_rect)
         

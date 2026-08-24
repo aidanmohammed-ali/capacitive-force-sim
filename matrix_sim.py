@@ -32,7 +32,10 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     @return A 2D numpy array of the total measured capacitance at each node in Farads (F).
     """
     rows, cols = force_grid.shape
-    c_matrix = np.zeros((rows, cols))
+    ideal_matrix = np.zeros((rows, cols))
+    readout_matrix = np.zeros((rows, cols))
+    
+    conf = CF.load_config("config.ini")
     
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
@@ -42,11 +45,12 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     edge = cal_data["crosstalk"]["edge"]
     corner = cal_data["crosstalk"]["corner"]
     
+    # Calculate Ideal Physical States
     for r in range(rows):
         for c in range(cols):
             F = force_grid[r, c]
             
-            # Base Capacitance
+            # Base Capacitance (Flex-Air-Flex)
             c_ideal = AN.calculate_analytical_capacitance(F)
             c_fringe = (alpha * F**2) + (beta * F) + gamma
             c_node = c_ideal + c_fringe
@@ -62,9 +66,24 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
                     F_neigh = force_grid[r + dr, c + dc]
                     c_node += (corner["alpha"] * F_neigh**2) + (corner["beta"] * F_neigh) + corner["gamma"]
             
-            c_matrix[r, c] = c_node
+            ideal_matrix[r, c] = c_node
     
-    return c_matrix
+    # Calculate static routing tail capacitance
+    c_tail_rx = (conf.EPSILON_0 * conf.eps_r_flex * conf.tail_w * conf.tail_L) / conf.tail_h
+    
+    # Emulate CDC Hardware
+    for r in range(rows):
+        for c in range(cols):
+            # Sum the ideal column slice
+            c_pin_rx = c_tail_rx + np.sum(ideal_matrix[:, c])
+            
+            # Hardware limit check
+            if c_pin_rx > conf.cdc_limit:
+                readout_matrix[r, c] = np.nan
+            else:
+                readout_matrix[r, c] = ideal_matrix[r, c]
+    
+    return readout_matrix
 
 if __name__ == "__main__":
     cal_data = load_calibration("constants.json")

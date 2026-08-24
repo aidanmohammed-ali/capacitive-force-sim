@@ -40,7 +40,7 @@ def run_gui():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption(f"Tactile Skin Simulator ({ROWS}x{COLS})")
     clock = pygame.time.Clock()
-    font = pygame.font.SysFont(None, 22)
+    font = pygame.font.SysFont(None, 20)
     
     # Load physics
     cal_data = matrix_sim.load_calibration("constants.json")
@@ -51,6 +51,13 @@ def run_gui():
     
     running = True
     while running:
+        # Get the actual window size the OS provided
+        actual_width, actual_height = screen.get_size()
+        
+        # Calculate dynamic cell widths and heights (as floats)
+        cell_w = actual_width / COLS
+        cell_h = actual_height / ROWS
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -61,8 +68,8 @@ def run_gui():
         # Handle mouse input
         mouse_buttons = pygame.mouse.get_pressed()
         x, y = pygame.mouse.get_pos()
-        c = x // CELL_SIZE
-        r = y // CELL_SIZE
+        c = int(x // cell_w)
+        r = int(y // cell_h)
         
         if 0 <= r < ROWS and 0 <= c < COLS:
             if mouse_buttons[0]:
@@ -99,7 +106,7 @@ def run_gui():
                     threshold = 0.0
                 
                 color = (intensity, 0, 255 - intensity)
-                rect = (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                rect = (col * cell_w, row * cell_h, cell_w, cell_h)
                 
                 # Draw the coloured taxel and a subtle grid outline
                 pygame.draw.rect(screen, color, rect)
@@ -107,7 +114,7 @@ def run_gui():
                 
                 if display_val > threshold or not show_delta:
                     text_surface = font.render(f"{display_val:.3f}", True, (255, 255, 255))
-                    text_rect = text_surface.get_rect(center=(col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2))
+                    text_rect = text_surface.get_rect(center=(col * cell_w + cell_w // 2, row * cell_h + cell_h // 2))
                     screen.blit(text_surface, text_rect)
         
         pygame.display.flip()

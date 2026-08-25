@@ -37,6 +37,22 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     
     conf = CF.load_config("config.ini")
     
+    # Mechanical Flex Coupling
+    effective_force = np.zeros((rows, cols))
+    for r in range(rows):
+        for c in range(cols):
+            F_applied = force_grid[r, c]
+            if F_applied > 0:
+                effective_force[r, c] += F_applied
+                
+                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    if 0 <= r + dr < rows and 0 <= c + dc < cols:
+                        effective_force[r + dr, c + dc] += F_applied * conf.dimple_edge
+                
+                for dr, dc in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+                    if 0 <= r + dr < rows and 0 <= c + dc < cols:
+                        effective_force[r + dr, c + dc] += F_applied * conf.dimple_corner
+    
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
     beta = cal_data["fringing"]["beta"]
@@ -48,7 +64,7 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     # Calculate Ideal Physical States
     for r in range(rows):
         for c in range(cols):
-            F = force_grid[r, c]
+            F = effective_force[r, c]
             
             # Base Capacitance (Flex-Air-Flex)
             c_ideal = AN.calculate_analytical_capacitance(F)
@@ -75,13 +91,13 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     for r in range(rows):
         for c in range(cols):
             # Sum the ideal column slice
-            c_pin_rx = c_tail_rx + np.sum(ideal_matrix[:, c])
+            c_pin_rx = c_tail_rx + np.sum(ideal_matrix[:, c]) + conf.cdc_offset
             
             # Hardware limit check
             if c_pin_rx > conf.cdc_limit:
                 readout_matrix[r, c] = np.nan
             else:
-                readout_matrix[r, c] = ideal_matrix[r, c]
+                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset
     
     return readout_matrix
 

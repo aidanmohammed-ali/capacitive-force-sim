@@ -24,9 +24,9 @@ HEIGHT = ROWS * CELL_SIZE
 
 # Max force (N) to cap the input at, and approximate max delta Farads for the color scale
 MAX_FORCE = 5.0
-MAX_DELTA_C = 5.0e-17
-MIN_RAW_C = 1.5e-13
-MAX_RAW_C = 3.0e-13
+MAX_DELTA_C = 5.0e-14
+MIN_RAW_C = 2.0e-12
+MAX_RAW_C = 4.0e-12
 
 def run_gui():
     """
@@ -83,9 +83,9 @@ def run_gui():
         
         # Update window title to show current mode
         if show_delta:
-            mode_text = "DELTA Mode (aF)"
+            mode_text = "DELTA Mode (fF)"
         else:
-            mode_text = "RAW Mode (fF)"
+            mode_text = "RAW Mode (pF)"
         pygame.display.set_caption(f"Tactile Skin ({ROWS}x{COLS}) | {mode_text} | Press SPACE to toggle")
         
         # Render the heatmap
@@ -101,7 +101,7 @@ def run_gui():
                         is_saturated = True
                     else:
                         intensity = int(min(max(val / MAX_DELTA_C, 0), 1) * 255)
-                        display_val = val * 1e18
+                        display_val = val * 1e15
                         threshold = 0.1
                 else:
                     val = active_matrix[row, col]
@@ -110,7 +110,7 @@ def run_gui():
                     else:
                         norm = (val - MIN_RAW_C) / (MAX_RAW_C - MIN_RAW_C)
                         intensity = int(min(max(norm, 0), 1) * 255)
-                        display_val = val * 1e15
+                        display_val = val * 1e12
                         threshold = 0.0
                 
                 # Check hardware saturation
@@ -120,7 +120,7 @@ def run_gui():
                     draw_text = True
                 else:                
                     color = (intensity, 0, 255 - intensity)
-                    text_surface = font.render(f"{display_val:.1f}", True, (255, 255, 255))
+                    text_surface = font.render(f"{display_val:.3f}", True, (255, 255, 255))
                     draw_text = (display_val > threshold) or not show_delta
                 
                 rect = (col * cell_w, row * cell_h, cell_w, cell_h)

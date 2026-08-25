@@ -29,7 +29,10 @@ class SensorConfig:
     tail_w: float
     tail_L: float
     tail_h: float
+    dimple_edge: float
+    dimple_corner: float
     cdc_limit: float
+    cdc_offset: float
     
     # Material
     E: float
@@ -67,7 +70,10 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     tail_w = parser.getfloat('Hardware', 'tail_w')
     tail_L = parser.getfloat('Hardware', 'tail_L')
     tail_h = parser.getfloat('Hardware', 'tail_h')
+    dimple_edge = parser.getfloat('Hardware', 'dimple_edge')
+    dimple_corner = parser.getfloat('Hardware', 'dimple_corner')
     cdc_limit = parser.getfloat('Hardware', 'cdc_limit')
+    cdc_offset = parser.getfloat('Hardware', 'cdc_offset')
     
     # Parse Material
     E = parser.getfloat('Material', 'E')
@@ -91,7 +97,10 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
         tail_w=tail_w,
         tail_L=tail_L,
         tail_h=tail_h,
+        dimple_edge=dimple_edge,
+        dimple_corner=dimple_corner,
         cdc_limit=cdc_limit,
+        cdc_offset=cdc_offset,
         E=E,
         nu=nu,
         eps_r_flex=eps_r_flex,

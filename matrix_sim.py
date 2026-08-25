@@ -56,6 +56,9 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     # Hardware Analytical Hardware Parasitics
     c_pad = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pad_w * conf.pad_L) / conf.d_flex
     
+    # Calculate PCB Parasitic Capacitance
+    c_pcb = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pcb_w * conf.pcb_L) / conf.d_pcb
+    
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
     beta = cal_data["fringing"]["beta"]
@@ -91,13 +94,13 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     for r in range(rows):
         for c in range(cols):
             # Sum the ideal column slice
-            c_pin_rx = np.sum(ideal_matrix[:, c]) + conf.cdc_offset + c_pad
+            c_pin_rx = np.sum(ideal_matrix[:, c]) + conf.cdc_offset + c_pad + c_pcb
             
             # Hardware limit check
             if c_pin_rx > conf.cdc_limit:
                 readout_matrix[r, c] = np.nan
             else:
-                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset + c_pad
+                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset + c_pad + c_pcb
     
     return readout_matrix
 

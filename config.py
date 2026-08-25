@@ -23,18 +23,18 @@ class SensorConfig:
     L0: float
     d_air_0: float
     d_flex: float
+    d_pcb: float
     gap: float
     
     # Trace Routing & Hardware Limits
-    tail_w: float
-    tail_L: float
-    tail_h: float
     dimple_edge: float
     dimple_corner: float
     cdc_limit: float
     cdc_offset: float
     pad_w: float
     pad_L: float
+    pcb_w: float
+    pcb_L: float
     
     # Material
     E: float
@@ -67,18 +67,18 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     L0 = parser.getfloat('Geometry', 'L0')
     d_air_0 = parser.getfloat('Geometry', 'd_air_0')
     d_flex = parser.getfloat('Geometry', 'd_flex')
+    d_pcb = parser.getfloat('Geometry', 'd_pcb')
     gap = parser.getfloat('Geometry', 'gap')
     
     # Parse Trace Routing & Hardware Limits
-    tail_w = parser.getfloat('Hardware', 'tail_w')
-    tail_L = parser.getfloat('Hardware', 'tail_L')
-    tail_h = parser.getfloat('Hardware', 'tail_h')
     dimple_edge = parser.getfloat('Hardware', 'dimple_edge')
     dimple_corner = parser.getfloat('Hardware', 'dimple_corner')
     cdc_limit = parser.getfloat('Hardware', 'cdc_limit')
     cdc_offset = parser.getfloat('Hardware', 'cdc_offset')
     pad_w = parser.getfloat('Hardware', 'pad_w')
     pad_L = parser.getfloat('Hardware', 'pad_L')
+    pcb_w = parser.getfloat('Hardware', 'pcb_w')
+    pcb_L = parser.getfloat('Hardware', 'pcb_L')
     
     # Parse Material
     E = parser.getfloat('Material', 'E')
@@ -99,16 +99,16 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
         L0=L0,
         d_air_0=d_air_0,
         d_flex=d_flex,
+        d_pcb=d_pcb,
         gap=gap,
-        tail_w=tail_w,
-        tail_L=tail_L,
-        tail_h=tail_h,
         dimple_edge=dimple_edge,
         dimple_corner=dimple_corner,
         cdc_limit=cdc_limit,
         cdc_offset=cdc_offset,
         pad_w=pad_w,
         pad_L=pad_L,
+        pcb_w=pcb_w,
+        pcb_L=pcb_L,
         E=E,
         nu=nu,
         eps_r_flex=eps_r_flex,

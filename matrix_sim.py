@@ -53,6 +53,9 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
                     if 0 <= r + dr < rows and 0 <= c + dc < cols:
                         effective_force[r + dr, c + dc] += F_applied * conf.dimple_corner
     
+    # Hardware Analytical Hardware Parasitics
+    c_pad = (conf.EPSILON_0 * conf.eps_r_flex * conf.pad_w * conf.pad_L) / conf.d_flex
+    
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
     beta = cal_data["fringing"]["beta"]
@@ -84,20 +87,17 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
             
             ideal_matrix[r, c] = c_node
     
-    # Calculate static routing tail capacitance
-    c_tail_rx = (conf.EPSILON_0 * conf.eps_r_flex * conf.tail_w * conf.tail_L) / conf.tail_h
-    
     # Emulate CDC Hardware
     for r in range(rows):
         for c in range(cols):
             # Sum the ideal column slice
-            c_pin_rx = c_tail_rx + np.sum(ideal_matrix[:, c]) + conf.cdc_offset
+            c_pin_rx = np.sum(ideal_matrix[:, c]) + conf.cdc_offset + c_pad
             
             # Hardware limit check
             if c_pin_rx > conf.cdc_limit:
                 readout_matrix[r, c] = np.nan
             else:
-                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset
+                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset + c_pad
     
     return readout_matrix
 

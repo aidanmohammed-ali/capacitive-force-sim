@@ -33,6 +33,8 @@ class SensorConfig:
     dimple_corner: float
     cdc_limit: float
     cdc_offset: float
+    pad_w: float
+    pad_L: float
     
     # Material
     E: float
@@ -74,6 +76,8 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     dimple_corner = parser.getfloat('Hardware', 'dimple_corner')
     cdc_limit = parser.getfloat('Hardware', 'cdc_limit')
     cdc_offset = parser.getfloat('Hardware', 'cdc_offset')
+    pad_w = parser.getfloat('Hardware', 'pad_w')
+    pad_L = parser.getfloat('Hardware', 'pad_L')
     
     # Parse Material
     E = parser.getfloat('Material', 'E')
@@ -101,6 +105,8 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
         dimple_corner=dimple_corner,
         cdc_limit=cdc_limit,
         cdc_offset=cdc_offset,
+        pad_w=pad_w,
+        pad_L=pad_L,
         E=E,
         nu=nu,
         eps_r_flex=eps_r_flex,

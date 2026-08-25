@@ -40,6 +40,7 @@ class SensorConfig:
     E: float
     nu: float
     eps_r_flex: float
+    eps_r_fr4: float
     
     # Derived Properties
     A0: float
@@ -83,6 +84,7 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     E = parser.getfloat('Material', 'E')
     nu = parser.getfloat('Material', 'nu')
     eps_r_flex = parser.getfloat('Material', 'eps_r_flex')
+    eps_r_fr4 = parser.getfloat('Material', 'eps_r_fr4')
     
     # Calculate Derived Properties
     A0 = L0 ** 2
@@ -110,6 +112,7 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
         E=E,
         nu=nu,
         eps_r_flex=eps_r_flex,
+        eps_r_fr4=eps_r_fr4,
         A0=A0,
         C_flex=C_flex,
         C0=C0

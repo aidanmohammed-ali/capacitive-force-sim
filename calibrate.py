@@ -15,6 +15,7 @@ import json
 # =============================
 import fringing_fit as FF
 import crosstalk_fit as CTF
+import pad_mom as PM
 
 def generate_calibration_file(filename: str = "constants.json"):
     """
@@ -29,9 +30,14 @@ def generate_calibration_file(filename: str = "constants.json"):
     print("\n--- Step 1: Self-Capacitance Fringing ---")
     alpha, beta, gamma = FF.extract_fringing_constants(N=10, F_max=5.0, steps=50)
     
-    # Run the mutual crosstalk extraction (N=10 high for accuracy)
+    # Run the mutual crosstalk extraction (N=10 for high accuracy)
     print("\n--- Step 2: Mutual Capacitance Crosstalk ---")
     crosstalk_results = CTF.extract_crosstalk_constants(N=10, F_max=5.0, steps=50)
+    
+    # Run the static connector pad extraction (N=20 for high accuracy)
+    print("\n--- Step 3: Static ZIF Connector Pad ---")
+    c_pad = PM.calculate_pad_mom_capacitance(N=20)
+    print(f"Calculated C_pad (MoM): {c_pad * 1e12:.4f} pF")
     
     # Format the data dictionary
     calibration_data = {
@@ -51,6 +57,9 @@ def generate_calibration_file(filename: str = "constants.json"):
                 "beta": crosstalk_results["corner"][1],
                 "gamma": crosstalk_results["corner"][2]
             }
+        },
+        "pad": {
+            "c_pad": c_pad
         }
     }
     

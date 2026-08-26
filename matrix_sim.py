@@ -54,7 +54,7 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
                         effective_force[r + dr, c + dc] += F_applied * conf.dimple_corner
     
     # Hardware Analytical Hardware Parasitics
-    c_pad = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pad_w * conf.pad_L) / conf.d_flex
+    c_pad = cal_data["pad"]["c_pad"]
     
     # Calculate PCB Parasitic Capacitance
     c_pcb = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pcb_w * conf.pcb_L) / conf.d_pcb

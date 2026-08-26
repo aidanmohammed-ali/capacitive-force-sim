@@ -53,7 +53,7 @@ def calculate_mom_capacitance(N: int = 10, force: float = 0.0, voltage: float = 
     # Pre-calculate the permittivity coefficient
     coef = 1 / (4 * np.pi * eps)
     
-    # Populate the P-matrix
+    # Populate the P-matrix across the air gap
     for i in range(num_patches):
         for j in range(num_patches):
             if i == j:
@@ -73,7 +73,10 @@ def calculate_mom_capacitance(N: int = 10, force: float = 0.0, voltage: float = 
     # Solve for discrete charge vector: [q] = [P]^-1 [V]
     Q = np.linalg.solve(P, V)
     
-    # Total Capacitance C = Q_total / V_applied
-    C_total = np.sum(Q) / voltage
+    # Air gap capacitance
+    C_air_mom = float(np.sum(Q) / voltage)
+    
+    # Flex-Air-Flex Series Model
+    C_total = 1.0 / ((2.0 / conf.C_flex) + (1.0 / C_air_mom))
     
     return float(C_total)

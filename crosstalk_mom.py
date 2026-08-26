@@ -77,7 +77,7 @@ def calculate_crosstalk_capacitance(N: int = 4, force: float = 0.0, voltage: flo
     
     # Initialise and populate the P-matrix
     P = np.zeros((total_patches, total_patches))
-    coef = 1 / (4 * np.pi * eps)
+    coef = 1.0 / (4.0 * np.pi * eps)
     
     for i in range(total_patches):
         for j in range(total_patches):
@@ -106,9 +106,29 @@ def calculate_crosstalk_capacitance(N: int = 4, force: float = 0.0, voltage: flo
         elif regions[k] == "corner":
             q_corner += Q[k]
     
+    # Extract mutual air-gap capacitance per individual neighbour
+    c_air_centre = float(q_centre) / voltage
+    c_air_edge = np.abs(float(q_edge)) / (4.0 * voltage)
+    c_air_corner = np.abs(float(q_corner)) / (4.0 * voltage)
+    
+    # Apply Flex-Air-Flex Series Transformation
+    inv_c_flex = 2.0 / conf.C_flex
+    
+    c_total_centre = 1.0 / (inv_c_flex + (1.0 / c_air_centre))
+    
+    if c_air_edge > 0:
+        c_total_edge = 1.0 / (inv_c_flex + (1.0 / c_air_edge))
+    else:
+        c_total_edge = 0.0
+    
+    if c_air_corner > 0:
+        c_total_corner = 1.0 / (inv_c_flex + (1.0 / c_air_corner))
+    else:
+        c_total_corner = 0.0
+    
     # Return the partitioned capacitance map
     return {
-        "centre": float(q_centre),
-        "edge": float(q_edge) / 4.0,
-        "corner": float(q_corner) / 4.0
+        "centre": float(c_total_centre),
+        "edge": float(c_total_edge),
+        "corner": float(c_total_corner)
     }

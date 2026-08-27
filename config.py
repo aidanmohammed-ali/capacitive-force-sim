@@ -26,6 +26,14 @@ class SensorConfig:
     d_pcb: float
     gap: float
     
+    flex_trace_w: float
+    flex_trace_s: float
+    flex_trace_L: float
+    
+    pcb_w: float
+    pcb_s: float
+    pcb_L: float
+    
     # Trace Routing & Hardware Limits
     dimple_edge: float
     dimple_corner: float
@@ -33,8 +41,6 @@ class SensorConfig:
     cdc_offset: float
     pad_w: float
     pad_L: float
-    pcb_w: float
-    pcb_L: float
     
     # Material
     E: float
@@ -70,6 +76,14 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     d_pcb = parser.getfloat('Geometry', 'd_pcb')
     gap = parser.getfloat('Geometry', 'gap')
     
+    flex_trace_w = parser.getfloat('Geometry', 'flex_trace_w')
+    flex_trace_s = parser.getfloat('Geometry', 'flex_trace_s')
+    flex_trace_L = parser.getfloat('Geometry', 'flex_trace_L')
+    
+    pcb_w = parser.getfloat('Geometry', 'pcb_w')
+    pcb_s = parser.getfloat('Geometry', 'pcb_s')
+    pcb_L = parser.getfloat('Geometry', 'pcb_L')
+    
     # Parse Trace Routing & Hardware Limits
     dimple_edge = parser.getfloat('Hardware', 'dimple_edge')
     dimple_corner = parser.getfloat('Hardware', 'dimple_corner')
@@ -77,8 +91,6 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
     cdc_offset = parser.getfloat('Hardware', 'cdc_offset')
     pad_w = parser.getfloat('Hardware', 'pad_w')
     pad_L = parser.getfloat('Hardware', 'pad_L')
-    pcb_w = parser.getfloat('Hardware', 'pcb_w')
-    pcb_L = parser.getfloat('Hardware', 'pcb_L')
     
     # Parse Material
     E = parser.getfloat('Material', 'E')
@@ -101,14 +113,18 @@ def load_config(ini_file: str = "config.ini") -> SensorConfig:
         d_flex=d_flex,
         d_pcb=d_pcb,
         gap=gap,
+        flex_trace_w=flex_trace_w,
+        flex_trace_s=flex_trace_s,
+        flex_trace_L=flex_trace_L,
+        pcb_w=pcb_w,
+        pcb_s=pcb_s,
+        pcb_L=pcb_L,
         dimple_edge=dimple_edge,
         dimple_corner=dimple_corner,
         cdc_limit=cdc_limit,
         cdc_offset=cdc_offset,
         pad_w=pad_w,
         pad_L=pad_L,
-        pcb_w=pcb_w,
-        pcb_L=pcb_L,
         E=E,
         nu=nu,
         eps_r_flex=eps_r_flex,

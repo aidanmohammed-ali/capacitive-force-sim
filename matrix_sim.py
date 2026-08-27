@@ -53,10 +53,9 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
                     if 0 <= r + dr < rows and 0 <= c + dc < cols:
                         effective_force[r + dr, c + dc] += F_applied * conf.dimple_corner
     
-    # Hardware Analytical Hardware Parasitics
+    # Hardware Parasitics
     c_pad = cal_data["pad"]["c_pad"]
-    
-    # Calculate PCB Parasitic Capacitance
+    c_trace_mutual = cal_data["trace"]["c_trace_mutual"]
     c_pcb = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pcb_w * conf.pcb_L) / conf.d_pcb
     
     # Unpack coefficients
@@ -93,14 +92,24 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     # Emulate CDC Hardware
     for r in range(rows):
         for c in range(cols):
+            # Flex tail
+            if (c == 0 or c == cols - 1):
+                num_neighbours = 1
+            else:
+                num_neighbours = 2
+            c_flex_tail = num_neighbours * c_trace_mutual
+            
+            # Total static parasitic baseline
+            c_parasitics_total = conf.cdc_offset + c_pad + c_pcb + c_flex_tail
+            
             # Sum the ideal column slice
-            c_pin_rx = np.sum(ideal_matrix[:, c]) + conf.cdc_offset + c_pad + c_pcb
+            c_pin_rx = np.sum(ideal_matrix[:, c]) + c_parasitics_total
             
             # Hardware limit check
             if c_pin_rx > conf.cdc_limit:
                 readout_matrix[r, c] = np.nan
             else:
-                readout_matrix[r, c] = ideal_matrix[r, c] + conf.cdc_offset + c_pad + c_pcb
+                readout_matrix[r, c] = ideal_matrix[r, c] + c_parasitics_total
     
     return readout_matrix
 

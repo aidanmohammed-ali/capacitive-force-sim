@@ -16,6 +16,7 @@ import json
 import fringing_fit as FF
 import crosstalk_fit as CTF
 import pad_mom as PM
+import trace_mom as TM
 
 def generate_calibration_file(filename: str = "constants.json"):
     """
@@ -39,6 +40,11 @@ def generate_calibration_file(filename: str = "constants.json"):
     c_pad = PM.calculate_pad_mom_capacitance(N=20)
     print(f"Calculated C_pad (MoM): {c_pad * 1e12:.4f} pF")
     
+    # Run the coplanar flex tail trace-to-trace extraction
+    print("\n--- Step 4: Flex Tail Coplanar Trace ---")
+    c_trace_mutual = TM.calculate_coplanar_trace_capacitance(Nw=2, Nl=40)
+    print(f"Calculated C_trace_mutual (MoM): {c_trace_mutual * 1e12:.4f} pF")
+    
     # Format the data dictionary
     calibration_data = {
         "fringing": {
@@ -60,6 +66,9 @@ def generate_calibration_file(filename: str = "constants.json"):
         },
         "pad": {
             "c_pad": c_pad
+        },
+        "trace": {
+            "c_trace_mutual": c_trace_mutual
         }
     }
     

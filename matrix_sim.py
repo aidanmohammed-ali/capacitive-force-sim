@@ -57,6 +57,8 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     c_pad = cal_data["pad"]["c_pad"]
     c_trace_self = cal_data["trace"]["c_trace_self"]
     c_trace_mutual = cal_data["trace"]["c_trace_mutual"]
+    c_pcb_self = cal_data["pcb"]["c_pcb_self"]
+    c_pcb_mutual = cal_data["pcb"]["c_pcb_mutual"]
         
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
@@ -92,15 +94,16 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     # Emulate CDC Hardware
     for r in range(rows):
         for c in range(cols):
-            # Flex tail
+            # Flex tail and PCB traces
             if (c == 0 or c == cols - 1):
                 num_neighbours = 1
             else:
                 num_neighbours = 2
             c_flex_tail = (num_neighbours * c_trace_mutual) + c_trace_self
+            c_pcb = (num_neighbours * c_pcb_mutual) + c_trace_self
             
             # Total static parasitic baseline
-            c_parasitics_total = conf.cdc_offset + c_pad + c_flex_tail
+            c_parasitics_total = conf.cdc_offset + c_pad + c_flex_tail + c_pcb
             
             # Final matrix
             readout_matrix[r, c] = ideal_matrix[r, c] + c_parasitics_total

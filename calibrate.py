@@ -17,6 +17,7 @@ import fringing_fit as FF
 import crosstalk_fit as CTF
 import pad_mom as PM
 import trace_mom as TM
+import pcb_mom as PCB
 
 def generate_calibration_file(filename: str = "constants.json"):
     """
@@ -46,6 +47,12 @@ def generate_calibration_file(filename: str = "constants.json"):
     print(f"Calculated C_trace_self (MoM): {c_trace_self * 1e12:.4f} pF")
     print(f"Calculated C_trace_mutual (MoM): {c_trace_mutual * 1e12:.4f} pF")
     
+    # Run the pcb trace extraction
+    print("\n--- Step 5: PCB Coplanar Trace ---")
+    c_pcb_self, c_pcb_mutual = PCB.calculate_pcb_capacitance(Nw=2, Nl=40)
+    print(f"Calculated C_pcb_self (MoM): {c_pcb_self * 1e12:.4f} pF")
+    print(f"Calculated C_pcb_mutual (MoM): {c_pcb_mutual * 1e12:.4f} pF")
+    
     # Format the data dictionary
     calibration_data = {
         "fringing": {
@@ -71,6 +78,10 @@ def generate_calibration_file(filename: str = "constants.json"):
         "trace": {
             "c_trace_self": c_trace_self,
             "c_trace_mutual": c_trace_mutual
+        },
+        "pcb": {
+            "c_pcb_self": c_pcb_self,
+            "c_pcb_mutual": c_pcb_mutual
         }
     }
     

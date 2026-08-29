@@ -100,7 +100,7 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
             else:
                 num_neighbours = 2
             c_flex_tail = (num_neighbours * c_trace_mutual) + c_trace_self
-            c_pcb = (num_neighbours * c_pcb_mutual) + c_trace_self
+            c_pcb = (num_neighbours * c_pcb_mutual) + c_pcb_self
             
             # Total static parasitic baseline
             c_parasitics_total = conf.cdc_offset + c_pad + c_flex_tail + c_pcb

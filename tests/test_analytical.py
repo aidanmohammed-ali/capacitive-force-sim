@@ -43,7 +43,7 @@ def test_positive_force():
     C_calc = AN.calculate_analytical_capacitance(force)
     
     # Check if the math matches
-    assert C_calc == pytest.approx(expected_C), "Capacitance under load calculated incorrectly."
+    assert C_calc == pytest.approx(expected_C), "Capacitance under load calculated incorrectly"
     
     # Physics sanity check: Pushing down MUST increase capacitance
-    assert C_calc > conf.C0, "Capacitance must increase when the sensor is compressed."
+    assert C_calc > conf.C0, "Capacitance must increase when the sensor is compressed"

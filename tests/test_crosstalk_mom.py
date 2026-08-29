@@ -38,4 +38,4 @@ def test_crosstalk_force_response():
     loaded = CTM.calculate_crosstalk_capacitance(N=3, force=1.0)
     
     # The centre node directly under the load must increase
-    assert loaded["centre"] > unloaded["centre"], "Loaded centre must be greater than unloaded centre."
+    assert loaded["centre"] > unloaded["centre"], "Loaded centre must be greater than unloaded centre"

@@ -42,7 +42,8 @@ def generate_calibration_file(filename: str = "constants.json"):
     
     # Run the coplanar flex tail trace-to-trace extraction
     print("\n--- Step 4: Flex Tail Coplanar Trace ---")
-    c_trace_mutual = TM.calculate_coplanar_trace_capacitance(Nw=2, Nl=40)
+    c_trace_self, c_trace_mutual = TM.calculate_coplanar_trace_capacitance(Nw=2, Nl=40)
+    print(f"Calculated C_trace_self (MoM): {c_trace_self * 1e12:.4f} pF")
     print(f"Calculated C_trace_mutual (MoM): {c_trace_mutual * 1e12:.4f} pF")
     
     # Format the data dictionary
@@ -68,6 +69,7 @@ def generate_calibration_file(filename: str = "constants.json"):
             "c_pad": c_pad
         },
         "trace": {
+            "c_trace_self": c_trace_self,
             "c_trace_mutual": c_trace_mutual
         }
     }

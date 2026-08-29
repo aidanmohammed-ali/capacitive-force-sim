@@ -32,8 +32,8 @@ def test_config_loading():
     assert config.C0 == pytest.approx(expected_C0), f"Baseline C0 should {expected_C0}, got {config.C0}"
     
     # Check for physical realities
-    assert config.C0 > 0, "Capacitance must be strictly positive."
-    assert config.nu == 0, "Poisson's ratio must be 0 for rigid flex PCB traces."
+    assert config.C0 > 0, "Capacitance must be strictly positive"
+    assert config.nu == 0, "Poisson's ratio must be 0 for rigid flex PCB traces"
     assert config.eps_r_flex > 0.99, "Relative permittivity for flexible PCB should be greater than 1.0"
 
 def test_missing_file():

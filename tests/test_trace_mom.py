@@ -31,18 +31,19 @@ def test_trace_mom_vs_sidewall():
     c_sidewall = (eps * t * L) / s
     
     # MoM calculation
-    c_coplanar_mom = trace_mom.calculate_coplanar_trace_capacitance(Nw=2, Nl=40, voltage=1.0)
+    c_self, c_mutual = trace_mom.calculate_coplanar_trace_capacitance(Nw=2, Nl=40, voltage=1.0)
     
     # MoM must be strictly greater than sidewall parallel-plate model
-    assert c_coplanar_mom > c_sidewall, (
-        f"MoM ({c_coplanar_mom:.4e} F) should be significantly greater than "
+    assert c_mutual > c_sidewall, (
+        f"MoM mutual capacitance ({c_mutual:.4e} F) should be significantly greater than "
         f"the sidewall model ({c_sidewall:.4e} F)"
     )
 
 def test_trace_mom_positivity():
     """
-    @brief Verifies the extracted capacitance is strictly positive.
+    @brief Verifies the extracted self and mutual capacitances are strictly positive.
     """
-    c_val = trace_mom.calculate_coplanar_trace_capacitance(Nw=2, Nl=40, voltage=1.0)
+    c_self, c_mutual = trace_mom.calculate_coplanar_trace_capacitance(Nw=2, Nl=40, voltage=1.0)
     
-    assert c_val > 0.0, "Capacitance must be strictly positive."
+    assert c_self > 0.0, f"Self capacitance must be strictly positive, got {c_self}"
+    assert c_mutual > 0.0, f"Mutual capacitance must be strictly positive, got {c_mutual}"

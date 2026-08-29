@@ -55,9 +55,9 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
     
     # Hardware Parasitics
     c_pad = cal_data["pad"]["c_pad"]
+    c_trace_self = cal_data["trace"]["c_trace_self"]
     c_trace_mutual = cal_data["trace"]["c_trace_mutual"]
-    c_pcb = (conf.EPSILON_0 * conf.eps_r_fr4 * conf.pcb_w * conf.pcb_L) / conf.d_pcb
-    
+        
     # Unpack coefficients
     alpha = cal_data["fringing"]["alpha"]
     beta = cal_data["fringing"]["beta"]
@@ -97,19 +97,13 @@ def simulate_matrix_readout(force_grid: np.ndarray, cal_data: dict) -> np.ndarra
                 num_neighbours = 1
             else:
                 num_neighbours = 2
-            c_flex_tail = num_neighbours * c_trace_mutual
+            c_flex_tail = (num_neighbours * c_trace_mutual) + c_trace_self
             
             # Total static parasitic baseline
-            c_parasitics_total = conf.cdc_offset + c_pad + c_pcb + c_flex_tail
+            c_parasitics_total = conf.cdc_offset + c_pad + c_flex_tail
             
-            # Sum the ideal column slice
-            c_pin_rx = np.sum(ideal_matrix[:, c]) + c_parasitics_total
-            
-            # Hardware limit check
-            if c_pin_rx > conf.cdc_limit:
-                readout_matrix[r, c] = np.nan
-            else:
-                readout_matrix[r, c] = ideal_matrix[r, c] + c_parasitics_total
+            # Final matrix
+            readout_matrix[r, c] = ideal_matrix[r, c] + c_parasitics_total
     
     return readout_matrix
 

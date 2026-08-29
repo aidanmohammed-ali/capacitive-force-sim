@@ -33,4 +33,4 @@ def test_mom_positive_force():
     C_unloaded = mom.calculate_mom_capacitance(N=4, force=0.0)
     C_loaded = mom.calculate_mom_capacitance(N=4, force=1.0)
     
-    assert C_loaded > C_unloaded, "MoM capacitance must increase under load."
+    assert C_loaded > C_unloaded, "MoM capacitance must increase under load"

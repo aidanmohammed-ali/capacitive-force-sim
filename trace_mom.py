@@ -1,7 +1,7 @@
 """
 @file trace_mom.py
 @author Aidan Mohammed-Ali
-@brief Method of Moments (MoM) solver for coplanar trace-to-trace mutual capacitance.
+@brief Method of Moments (MoM) solver for trace self capacitance and coplanar trace-to-trace mutual capacitance.
 @date 2026-08-26
 """
 
@@ -17,11 +17,12 @@ import config as CF
 
 def calculate_coplanar_trace_capacitance(Nw: int = 2, Nl: int = 40, voltage: float = 1.0) -> float:
     """
-    @brief Computes mutual coupling between two parallel coplanar traces on the flexible tail using MoM.
+    @brief Computes self capacitance and mutual coupling between two parallel coplanar traces on the flexible tail using MoM.
     @param Nw Number of discrete segments across the trace width.
     @param Nl Number of discrete segments across the trace length.
     @param voltage Applied test potential on the active trace in Volts (V).
-    @return Trace-to-trace mutual capacitance in Farads (F).
+    @return Trace self capacitance in Farads (F).
+            Trace-to-trace mutual capacitance in Farads (F).
     """
     conf = CF.load_config("config.ini")
     
@@ -85,8 +86,15 @@ def calculate_coplanar_trace_capacitance(Nw: int = 2, Nl: int = 40, voltage: flo
     # Solve for surface charge vector
     Q = np.linalg.solve(P, V)
     
+    # Extract total charge on trace 1
+    q_trace1 = np.sum(Q[:patches_per_trace])
+    c_total = float(q_trace1 / voltage)
+    
     # Extract induced mutual charge on trace 2
     q_trace2 = np.abs(np.sum(Q[patches_per_trace:]))
     c_mutual = float(q_trace2 / voltage)
     
-    return c_mutual
+    # Self capacitance to ground
+    c_self = c_total - c_mutual
+    
+    return c_self, c_mutual

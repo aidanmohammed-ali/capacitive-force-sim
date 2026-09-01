@@ -117,9 +117,9 @@ def run_gui():
         
         # Update window title to show current mode
         if display_mode == 0:
-            mode_text = "RAW Mode (fF)"
+            mode_text = "RAW Mode (pF)"
         elif display_mode == 1:
-            mode_text = "DELTA Mode (pF)"
+            mode_text = "DELTA Mode (fF)"
         else:
             mode_text = "FORCE Mode (N)"
         pygame.display.set_caption(f"Tactile Skin ({ROWS}x{COLS}) | {mode_text} | Press SPACE to toggle")

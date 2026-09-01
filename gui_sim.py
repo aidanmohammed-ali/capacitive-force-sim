@@ -25,8 +25,38 @@ HEIGHT = ROWS * CELL_SIZE
 # Max force (N) to cap the input at, and approximate max delta Farads for the color scale
 MAX_FORCE = 5.0
 MAX_DELTA_C = 5.0e-14
-MIN_RAW_C = 2.0e-12
-MAX_RAW_C = 4.0e-12
+
+def get_thermal_color(norm_val: float) -> tuple:
+    """
+    @brief Maps a normalised float (0.0 to 1.0) to a Black->Blue->Cyan->Yellow->Red color scale.
+    @param norm_val The normalized delta capacitance value as a float (clamped between 0.0 and 1.0).
+    @return An (R, G, B) tuple of integers representing the thermal color.
+    """
+    norm_val = max(0.0, min(1.0, norm_val))
+    if norm_val < 0.25:
+        t = norm_val / 0.25
+        return (0, 0, int(255 * t))
+    elif norm_val < 0.5:
+        t = (norm_val - 0.25) / 0.25
+        return (0, int(255 * t), 255)
+    elif norm_val < 0.75:
+        t = (norm_val - 0.5) / 0.25
+        return (int(255 * (1 - t)), 255, int(255 * (1 - t)))
+    else:
+        t = (norm_val - 0.75) / 0.25
+        return (255, int(255 * (1 - t)), 0)
+
+def get_raw_color(norm_val: float) -> tuple:
+    """
+    @brief Soft, low-contrast color scale (Dark Blue -> Muted Cyan) for the RAW baseline.
+    @param norm_val The normalized baseline capacitance value as a float (clamped between 0.0 and 1.0).
+    @return An (R, G, B) tuple of integers representing the cool/raw structural color.
+    """
+    norm_val = max(0.0, min(1.0, norm_val))
+    r = int(30 + 20 * norm_val)
+    g = int(40 + 100 * norm_val)
+    b = int(80 + 120 * norm_val)
+    return (r, g, b)
 
 def run_gui():
     """
@@ -47,9 +77,13 @@ def run_gui():
     forces = np.zeros((ROWS, COLS))
     baseline = matrix_sim.simulate_matrix_readout(np.zeros((ROWS, COLS)), cal_data)
     
-    show_delta = True
+    # Dynamic Auto-Scaling
+    MIN_RAW_C = np.nanmin(baseline)
+    MAX_RAW_C = np.nanmax(baseline) + MAX_DELTA_C
     
+    show_delta = True
     running = True
+    
     while running:
         # Get the actual window size the OS provided
         actual_width, actual_height = screen.get_size()
@@ -100,9 +134,9 @@ def run_gui():
                     if np.isnan(val):
                         is_saturated = True
                     else:
-                        intensity = int(min(max(val / MAX_DELTA_C, 0), 1) * 255)
+                        norm = val / MAX_DELTA_C
                         display_val = val * 1e15
-                        threshold = 0.1
+                        threshold = 0.01
                 else:
                     val = active_matrix[row, col]
                     if np.isnan(val):
@@ -115,19 +149,28 @@ def run_gui():
                 
                 # Check hardware saturation
                 if is_saturated:
-                    color = (255, 0, 0)
-                    text_surface = font.render("SAT", True, (255, 255, 255))
+                    color = (255, 255, 255)
+                    text_surface = font.render("SAT", True, (0, 0, 0))
                     draw_text = True
                 else:                
-                    color = (intensity, 0, 255 - intensity)
-                    text_surface = font.render(f"{display_val:.3f}", True, (255, 255, 255))
+                    if show_delta:
+                        color = get_thermal_color(norm)
+                    else:
+                        color = get_raw_color(norm)
+                    
+                    luminance = (0.2126 * color[0]) + (0.7152 * color[1]) + (0.0722 * color[2])
+                    if luminance > 140:
+                        text_color = (0, 0, 0)
+                    else:
+                        text_color = (255, 255, 255)
+                    text_surface = font.render(f"{display_val:.3f}", True, text_color)
                     draw_text = (display_val > threshold) or not show_delta
                 
                 rect = (col * cell_w, row * cell_h, cell_w, cell_h)
                 
                 # Draw the coloured taxel and a subtle grid outline
                 pygame.draw.rect(screen, color, rect)
-                pygame.draw.rect(screen, (40, 40, 40), rect, 1)
+                pygame.draw.rect(screen, (30, 30, 30), rect, 1)
                 
                 if draw_text:
                     text_rect = text_surface.get_rect(center=(col * cell_w + cell_w // 2, row * cell_h + cell_h // 2))

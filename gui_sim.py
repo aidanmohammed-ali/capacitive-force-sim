@@ -81,7 +81,7 @@ def run_gui():
     MIN_RAW_C = np.nanmin(baseline)
     MAX_RAW_C = np.nanmax(baseline) + MAX_DELTA_C
     
-    show_delta = True
+    display_mode = 1
     running = True
     
     while running:
@@ -97,7 +97,7 @@ def run_gui():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    show_delta = not show_delta
+                    display_mode = (display_mode + 1) % 3
         
         # Handle mouse input
         mouse_buttons = pygame.mouse.get_pressed()
@@ -116,10 +116,12 @@ def run_gui():
         delta_matrix = active_matrix - baseline
         
         # Update window title to show current mode
-        if show_delta:
-            mode_text = "DELTA Mode (fF)"
+        if display_mode == 0:
+            mode_text = "RAW Mode (fF)"
+        elif display_mode == 1:
+            mode_text = "DELTA Mode (pF)"
         else:
-            mode_text = "RAW Mode (pF)"
+            mode_text = "FORCE Mode (N)"
         pygame.display.set_caption(f"Tactile Skin ({ROWS}x{COLS}) | {mode_text} | Press SPACE to toggle")
         
         # Render the heatmap
@@ -129,7 +131,7 @@ def run_gui():
             for col in range(COLS):
                 is_saturated = False
                 
-                if show_delta:
+                if display_mode == 1: # DELTA MODE
                     val = delta_matrix[row, col]
                     if np.isnan(val):
                         is_saturated = True
@@ -137,7 +139,13 @@ def run_gui():
                         norm = val / MAX_DELTA_C
                         display_val = val * 1e15
                         threshold = 0.01
-                else:
+                elif display_mode == 2: # FORCE MODE
+                    val = forces[row, col]
+                    is_saturated = False
+                    norm = val / MAX_FORCE
+                    display_val = val
+                    threshold = 0.01
+                else: # RAW MODE
                     val = active_matrix[row, col]
                     if np.isnan(val):
                         is_saturated = True
@@ -153,10 +161,10 @@ def run_gui():
                     text_surface = font.render("SAT", True, (0, 0, 0))
                     draw_text = True
                 else:                
-                    if show_delta:
-                        color = get_thermal_color(norm)
-                    else:
+                    if display_mode == 0:
                         color = get_raw_color(norm)
+                    else:
+                        color = get_thermal_color(norm)
                     
                     luminance = (0.2126 * color[0]) + (0.7152 * color[1]) + (0.0722 * color[2])
                     if luminance > 140:
@@ -164,7 +172,7 @@ def run_gui():
                     else:
                         text_color = (255, 255, 255)
                     text_surface = font.render(f"{display_val:.3f}", True, text_color)
-                    draw_text = (display_val > threshold) or not show_delta
+                    draw_text = (display_val > threshold) or (display_mode == 0)
                 
                 rect = (col * cell_w, row * cell_h, cell_w, cell_h)
                 

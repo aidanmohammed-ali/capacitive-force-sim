@@ -15,8 +15,6 @@ It uses a **Method of Moments (MoM)** solver with image-charge theory to pre-cal
     * **DELTA Mode:** Emulates firmware baseline subtraction to isolate pure touch signals (fF).
     * **FORCE Mode:** Displays the raw physical mechanical input (N) across the grid.
 
----
-
 ## Quick Start
 1. Install dependencies:
     `pip install -r requirements.txt`
@@ -25,12 +23,8 @@ It uses a **Method of Moments (MoM)** solver with image-charge theory to pre-cal
 3. Launch the interactive GUI:
     `python3 gui_sim.py`
 
----
-
 ## Configuration
 All physical dimensions, material properties (Young's Modulus, relative permittivity), and hardware limits can be tuned directly in `config.ini`.
-
----
 
 ## Documentation
 For a deep dive into the underlying mathematics check out the `docs/mathematical_model.md`.

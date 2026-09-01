@@ -23,7 +23,7 @@ WIDTH = COLS * CELL_SIZE
 HEIGHT = ROWS * CELL_SIZE
 
 # Max force (N) to cap the input at, and approximate max delta Farads for the color scale
-MAX_FORCE = 5.0
+MAX_FORCE = 10.0
 MAX_DELTA_C = 5.0e-14
 
 def get_thermal_color(norm_val: float) -> tuple:
